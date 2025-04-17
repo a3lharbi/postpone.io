@@ -142,8 +142,8 @@
             bottom: 0;
             background-color: rgba(0,0,0,0.5);
             z-index: 1000;
-            justify-content: center;
             align-items: center;
+            justify-content: center;
         }
         .signature-pad-content {
             background-color: white;
@@ -155,6 +155,7 @@
         #signatureCanvas {
             border: 1px solid #ccc;
             margin: 10px 0;
+            background-color: white;
         }
         .signature-btn-container {
             display: flex;
@@ -162,9 +163,7 @@
             margin-top: 10px;
         }
         .loading {
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            display: none;
             position: fixed;
             top: 0;
             left: 0;
@@ -172,6 +171,8 @@
             height: 100%;
             background-color: rgba(255,255,255,0.8);
             z-index: 2000;
+            justify-content: center;
+            align-items: center;
         }
         .loading-spinner {
             border: 5px solid #f3f3f3;
@@ -199,6 +200,20 @@
             max-height: 40px;
             display: block;
         }
+        .status-message {
+            text-align: center;
+            margin: 10px 0;
+            padding: 8px;
+            border-radius: 4px;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
         @media print {
             body {
                 padding: 0;
@@ -208,7 +223,7 @@
                 box-shadow: none;
                 padding: 0;
             }
-            .button-container, .sign-button {
+            .button-container, .sign-button, .status-message {
                 display: none;
             }
             input[type="text"] {
@@ -218,7 +233,7 @@
     </style>
 </head>
 <body>
-    <div id="loading" class="loading" style="display: none;">
+    <div id="loading" class="loading">
         <div class="loading-spinner"></div>
     </div>
 
@@ -237,7 +252,7 @@
     <div class="container">
         <div class="header">
             <div class="logo">
-                <img src="Kfupm logo.png" alt="KFUPM Logo" onerror="this.src='/api/placeholder/80/80'">
+                <img src="kfupm logo.png" alt="KFUPM Logo" onerror="this.src='https://via.placeholder.com/80'">
             </div>
             <div class="institution">
                 <div style="font-size: 1.2em; font-weight: bold;">King Fahd University of Petroleum & Minerals</div>
@@ -245,6 +260,8 @@
                 <div style="font-size: 0.9em;">Department of Chemical Engineering</div>
             </div>
         </div>
+
+        <div id="statusMessage" class="status-message" style="display: none;"></div>
 
         <div class="title">
             <span class="green-text">Request for Postponement of CHE-619 Graduation Project</span>
@@ -315,17 +332,13 @@
         </div>
 
         <div class="button-container">
-            <button class="button" id="saveButton">Save Form Data</button>
+            <button class="button" id="saveButton">Save & Share Form Data</button>
+            <button class="button" id="refreshButton">Refresh Data</button>
             <button class="button" onclick="window.print()">Print Form</button>
         </div>
     </div>
 
     <script>
-        // GitHub Gist ID - Replace with your actual Gist ID after creating it
-        const GIST_ID = '5cf2de231fd8f9c0ea11894ca92a2fa7';
-        // GitHub Personal Access Token - Should be stored securely in production
-        const GITHUB_TOKEN = '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';
-        
         let currentSignatureRow = null;
         let formData = {
             day: '',
@@ -335,18 +348,28 @@
                 id: '',
                 supervisor: '',
                 signature: ''
-            }))
+            })),
+            lastUpdated: new Date().toISOString()
         };
+
+        // Generate a unique form ID using URL hash or create a new one
+        const formId = window.location.hash.substring(1) || generateFormId();
+        
+        // Set the URL hash to the form ID for sharing
+        if (!window.location.hash) {
+            window.location.hash = formId;
+        }
 
         document.addEventListener('DOMContentLoaded', function() {
             // Initialize the table
             initializeTable();
             
-            // Load data from GitHub
+            // Load data from server or localStorage (fallback)
             loadFormData();
             
             // Set up event listeners
-            document.getElementById('saveButton').addEventListener('click', saveToGitHub);
+            document.getElementById('saveButton').addEventListener('click', saveFormData);
+            document.getElementById('refreshButton').addEventListener('click', loadFormData);
             document.getElementById('clearSignature').addEventListener('click', clearSignature);
             document.getElementById('saveSignature').addEventListener('click', saveSignature);
             document.getElementById('cancelSignature').addEventListener('click', cancelSignature);
@@ -356,7 +379,14 @@
                 input.addEventListener('change', updateLocalData);
                 input.addEventListener('keyup', updateLocalData);
             });
+            
+            // Set up periodic refresh (every 30 seconds)
+            setInterval(checkForUpdates, 30000);
         });
+
+        function generateFormId() {
+            return 'form_' + Math.random().toString(36).substring(2, 15);
+        }
 
         function initializeTable() {
             const tbody = document.querySelector('#studentTable tbody');
@@ -403,68 +433,94 @@
                 const index = parseInt(input.dataset.index);
                 formData.students[index].supervisor = input.value;
             });
+            
+            // Save to localStorage (auto-save feature)
+            formData.lastUpdated = new Date().toISOString();
+            localStorage.setItem(`postponementFormData_${formId}`, JSON.stringify(formData));
         }
 
-        async function loadFormData() {
-            try {
-                showLoading();
-                const response = await fetch(`https://api.github.com/gists/${GIST_ID}`);
-                
-                if (response.ok) {
-                    const data = await response.json();
-                    const content = data.files['form-data.json'].content;
-                    formData = JSON.parse(content);
+        function loadFormData() {
+            showLoading();
+            
+            // First try to load from Firebase
+            fetchFromServer()
+                .then(data => {
+                    if (data) {
+                        formData = data;
+                        populateForm();
+                        showStatusMessage('Data loaded successfully!', 'success');
+                    } else {
+                        // Fall back to localStorage
+                        const savedData = localStorage.getItem(`postponementFormData_${formId}`);
+                        if (savedData) {
+                            formData = JSON.parse(savedData);
+                            populateForm();
+                            showStatusMessage('Using local data. Save to share with others.', 'success');
+                        } else {
+                            showStatusMessage('New form created. Fill it out and save to share with others.', 'success');
+                        }
+                    }
+                    hideLoading();
+                })
+                .catch(error => {
+                    console.error('Error loading data:', error);
                     
-                    // Populate the form with loaded data
-                    populateForm();
-                } else {
-                    console.log("No existing data found or unable to load. Starting fresh.");
-                }
-            } catch (error) {
-                console.error('Error loading data:', error);
-            } finally {
-                hideLoading();
-            }
+                    // Fall back to localStorage
+                    try {
+                        const savedData = localStorage.getItem(`postponementFormData_${formId}`);
+                        if (savedData) {
+                            formData = JSON.parse(savedData);
+                            populateForm();
+                            showStatusMessage('Using local data. Network connection issues detected.', 'error');
+                        }
+                    } catch (e) {
+                        console.error('Error loading local data:', e);
+                        showStatusMessage('Error loading data. Please try again later.', 'error');
+                    }
+                    
+                    hideLoading();
+                });
         }
 
-        async function saveToGitHub() {
+        function checkForUpdates() {
+            fetchFromServer(true)
+                .then(data => {
+                    if (data && new Date(data.lastUpdated) > new Date(formData.lastUpdated)) {
+                        // Only update if the server data is newer
+                        formData = data;
+                        populateForm();
+                        showStatusMessage('Form updated with new data!', 'success');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error checking for updates:', error);
+                });
+        }
+
+        function saveFormData() {
             // Update local data one last time before saving
             updateLocalData();
             
-            try {
-                showLoading();
-                
-                const requestBody = {
-                    files: {
-                        'form-data.json': {
-                            content: JSON.stringify(formData, null, 2)
-                        }
-                    }
-                };
-                
-                const method = 'PATCH'; // Use PATCH to update existing gist
-                
-                const response = await fetch(`https://api.github.com/gists/${GIST_ID}`, {
-                    method: method,
-                    headers: {
-                        'Authorization': `token ${GITHUB_TOKEN}`,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(requestBody)
+            showLoading();
+            
+            // Save to server
+            saveToServer()
+                .then(() => {
+                    hideLoading();
+                    showStatusMessage('Form data saved and shared successfully!', 'success');
+                    
+                    // Display sharing URL
+                    const shareUrl = window.location.origin + window.location.pathname + '#' + formId;
+                    alert(`Form saved successfully!\n\nShare this link with others to collaborate on this form:\n${shareUrl}`);
+                })
+                .catch(error => {
+                    console.error('Error saving data:', error);
+                    hideLoading();
+                    showStatusMessage('Error saving data to server. Data saved locally.', 'error');
+                    
+                    // Always save to localStorage as fallback
+                    localStorage.setItem(`postponementFormData_${formId}`, JSON.stringify(formData));
                 });
-                
-                if (response.ok) {
-                    alert('Form data saved successfully!');
-                } else {
-                    const errorData = await response.json();
-                    alert(`Error saving data: ${errorData.message}`);
-                }
-            } catch (error) {
-                console.error('Error saving data:', error);
-                alert('Error saving data. Please try again.');
-            } finally {
-                hideLoading();
-            }
         }
 
         function populateForm() {
@@ -495,33 +551,39 @@
         }
 
         // Signature pad functionality
-        let canvas, ctx;
-        
         function openSignaturePad(event) {
-            const index = event.target.dataset.index;
-            currentSignatureRow = parseInt(index);
+            currentSignatureRow = parseInt(event.target.dataset.index);
             
             const container = document.getElementById('signaturePadContainer');
             container.style.display = 'flex';
             
-            canvas = document.getElementById('signatureCanvas');
-            ctx = canvas.getContext('2d');
+            const canvas = document.getElementById('signatureCanvas');
+            const ctx = canvas.getContext('2d');
             
             // Clear the canvas
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
             ctx.fillStyle = 'white';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
             
             // Set drawing styles
             ctx.strokeStyle = 'black';
             ctx.lineWidth = 2;
+            ctx.lineCap = 'round';
             
             // Initialize drawing variables
             let isDrawing = false;
             let lastX = 0;
             let lastY = 0;
             
-            // Event listeners for drawing
+            // Remove any existing event listeners
+            canvas.removeEventListener('mousedown', startDrawing);
+            canvas.removeEventListener('mousemove', draw);
+            canvas.removeEventListener('mouseup', stopDrawing);
+            canvas.removeEventListener('mouseout', stopDrawing);
+            canvas.removeEventListener('touchstart', handleTouch);
+            canvas.removeEventListener('touchmove', handleTouchMove);
+            canvas.removeEventListener('touchend', stopDrawing);
+            
+            // Add event listeners for drawing
             canvas.addEventListener('mousedown', startDrawing);
             canvas.addEventListener('mousemove', draw);
             canvas.addEventListener('mouseup', stopDrawing);
@@ -534,16 +596,24 @@
             
             function startDrawing(e) {
                 isDrawing = true;
-                [lastX, lastY] = [e.offsetX, e.offsetY];
+                const rect = canvas.getBoundingClientRect();
+                lastX = e.clientX - rect.left;
+                lastY = e.clientY - rect.top;
             }
             
             function draw(e) {
                 if (!isDrawing) return;
+                const rect = canvas.getBoundingClientRect();
+                const currentX = e.clientX - rect.left;
+                const currentY = e.clientY - rect.top;
+                
                 ctx.beginPath();
                 ctx.moveTo(lastX, lastY);
-                ctx.lineTo(e.offsetX, e.offsetY);
+                ctx.lineTo(currentX, currentY);
                 ctx.stroke();
-                [lastX, lastY] = [e.offsetX, e.offsetY];
+                
+                lastX = currentX;
+                lastY = currentY;
             }
             
             function stopDrawing() {
@@ -553,37 +623,40 @@
             function handleTouch(e) {
                 e.preventDefault();
                 const touch = e.touches[0];
-                const mouseEvent = new MouseEvent('mousedown', {
-                    clientX: touch.clientX,
-                    clientY: touch.clientY
-                });
-                canvas.dispatchEvent(mouseEvent);
+                const rect = canvas.getBoundingClientRect();
+                lastX = touch.clientX - rect.left;
+                lastY = touch.clientY - rect.top;
+                isDrawing = true;
             }
             
             function handleTouchMove(e) {
+                if (!isDrawing) return;
                 e.preventDefault();
                 const touch = e.touches[0];
                 const rect = canvas.getBoundingClientRect();
-                const mouseEvent = new MouseEvent('mousemove', {
-                    clientX: touch.clientX,
-                    clientY: touch.clientY,
-                    offsetX: touch.clientX - rect.left,
-                    offsetY: touch.clientY - rect.top
-                });
-                canvas.dispatchEvent(mouseEvent);
+                const currentX = touch.clientX - rect.left;
+                const currentY = touch.clientY - rect.top;
+                
+                ctx.beginPath();
+                ctx.moveTo(lastX, lastY);
+                ctx.lineTo(currentX, currentY);
+                ctx.stroke();
+                
+                lastX = currentX;
+                lastY = currentY;
             }
         }
         
         function clearSignature() {
-            if (ctx) {
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                ctx.fillStyle = 'white';
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-            }
+            const canvas = document.getElementById('signatureCanvas');
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = 'white';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
         }
         
         function saveSignature() {
-            if (currentSignatureRow !== null && canvas) {
+            if (currentSignatureRow !== null) {
+                const canvas = document.getElementById('signatureCanvas');
                 // Convert canvas to image
                 const signatureData = canvas.toDataURL('image/png');
                 
@@ -600,15 +673,19 @@
                     container.appendChild(img);
                 }
                 
+                // Update localStorage
+                updateLocalData();
+                
                 // Close the signature pad
                 document.getElementById('signaturePadContainer').style.display = 'none';
-                currentSignatureRow = null;
+                
+                // Show a small notification about saving
+                showStatusMessage('Signature saved locally. Click "Save & Share Form Data" to share with others.', 'success');
             }
         }
         
         function cancelSignature() {
             document.getElementById('signaturePadContainer').style.display = 'none';
-            currentSignatureRow = null;
         }
 
         function showLoading() {
@@ -617,6 +694,69 @@
         
         function hideLoading() {
             document.getElementById('loading').style.display = 'none';
+        }
+        
+        function showStatusMessage(message, type) {
+            const statusElement = document.getElementById('statusMessage');
+            statusElement.textContent = message;
+            statusElement.className = 'status-message ' + type;
+            statusElement.style.display = 'block';
+            
+            // Auto-hide after 5 seconds
+            setTimeout(() => {
+                statusElement.style.display = 'none';
+            }, 5000);
+        }
+
+        // Firebase Integration
+        // These functions simulate server interaction - in a real implementation, 
+        // you would replace these with actual Firebase or another backend service calls
+
+        async function fetchFromServer(silent = false) {
+            if (!silent) showLoading();
+            
+            try {
+                // Using Firebase Realtime Database REST API (simulated)
+                const response = await fetch(`https://kfupm-form-default-rtdb.firebaseio.com/forms/${formId}.json`);
+                
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                
+                const data = await response.json();
+                if (!silent) hideLoading();
+                return data;
+            } catch (error) {
+                console.error('Error fetching data:', error);
+                if (!silent) hideLoading();
+                return null;
+            }
+        }
+
+        async function saveToServer() {
+            showLoading();
+            
+            try {
+                // Using Firebase Realtime Database REST API (simulated)
+                const response = await fetch(`https://kfupm-form-default-rtdb.firebaseio.com/forms/${formId}.json`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formData)
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                
+                hideLoading();
+                return true;
+            } catch (error) {
+                console.error('Error saving data:', error);
+                hideLoading();
+                throw error;
+            }
         }
     </script>
 </body>
