@@ -1,0 +1,424 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KFUPM - Request for Postponement</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            max-width: 850px;
+            margin: 0 auto;
+            background-color: #f9f9f9;
+        }
+        .container {
+            background-color: white;
+            padding: 25px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .logo {
+            width: 80px;
+            height: 80px;
+            background-color: #f1f1f1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+        }
+        .institution {
+            text-align: center;
+            flex-grow: 1;
+        }
+        .green-text {
+            color: #007a3d; /* KFUPM green */
+        }
+        .title {
+            text-align: center;
+            font-weight: bold;
+            font-size: 1.2em;
+            margin-bottom: 15px;
+        }
+        hr {
+            border: none;
+            border-top: 1px solid #ddd;
+            margin: 15px 0;
+        }
+        .date-line {
+            display: flex;
+            align-items: center;
+        }
+        .date-input {
+            border: none;
+            border-bottom: 1px solid #333;
+            width: 50px;
+            text-align: center;
+            margin: 0 5px;
+        }
+        .form-field {
+            margin-bottom: 10px;
+        }
+        label {
+            font-weight: bold;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
+        input[type="text"] {
+            width: 95%;
+            padding: 5px;
+            border: none;
+            border-bottom: 1px dotted #ccc;
+            background-color: transparent;
+        }
+        .approval-section {
+            margin-top: 20px;
+        }
+        .checkbox-container {
+            display: inline-block;
+            margin-right: 20px;
+        }
+        .checkbox {
+            display: inline-block;
+            width: 15px;
+            height: 15px;
+            border: 1px solid #333;
+            margin-right: 5px;
+            vertical-align: middle;
+        }
+        .signature-line {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 15px;
+        }
+        .underline {
+            border-bottom: 1px solid #333;
+            flex-grow: 1;
+            margin: 0 5px;
+        }
+        .button-container {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .print-button {
+            background-color: #007a3d;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        .print-button:hover {
+            background-color: #005c2e;
+        }
+        @media print {
+            body {
+                padding: 0;
+                background-color: white;
+            }
+            .container {
+                box-shadow: none;
+                padding: 0;
+            }
+            .button-container {
+                display: none;
+            }
+            input[type="text"] {
+                border-bottom: 1px solid #ccc;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">
+                <img src="/api/placeholder/80/80" alt="KFUPM Logo">
+            </div>
+            <div class="institution">
+                <div style="font-size: 1.2em; font-weight: bold;">King Fahd University of Petroleum & Minerals</div>
+                <div style="font-size: 0.9em;">College of Chemicals and Materials</div>
+                <div style="font-size: 0.9em;">Department of Chemical Engineering</div>
+            </div>
+        </div>
+
+        <div class="title">
+            <span class="green-text">Request for Postponement of CHE-619 Graduation Project</span>
+        </div>
+
+        <hr>
+
+        <div class="form-field date-line">
+            <strong>Date:</strong>
+            <input type="text" class="date-input" id="day" maxlength="2" placeholder="DD"> /
+            <input type="text" class="date-input" id="month" maxlength="2" placeholder="MM"> /
+            <span>2025</span>
+        </div>
+
+        <div class="form-field">
+            <strong>To:</strong> Dr. Zuhair Omar Malaibari<br>
+            <span style="margin-left: 20px;">MX Program Coordinator, Chemical Engineering Department, KFUPM</span>
+        </div>
+
+        <div class="form-field">
+            <strong>Subject:</strong> Request for Postponement of CHE-619 Graduation Project
+        </div>
+
+        <div class="form-field">
+            Dear Dr. Malaibari,
+            <p>
+                We, the undersigned student(s) enrolled in <strong>CHE-619 (Graduation Project)</strong> during the current academic year <strong>242</strong>, respectfully request your approval to postpone the final report submission deadline presently set for <strong>27 April 2025</strong>.
+                We remain committed to completing our projects to the highest standard and appreciate your understanding and consideration of this request.
+            </p>
+            <p>Warm regards,</p>
+        </div>
+
+        <table id="studentTable">
+            <thead>
+                <tr>
+                    <th width="5%">#</th>
+                    <th width="30%">Student Name</th>
+                    <th width="20%">KFUPM ID</th>
+                    <th width="30%">Supervisor Name</th>
+                    <th width="15%">Signature</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>1</td>
+                    <td><input type="text" class="student-name"></td>
+                    <td><input type="text" class="student-id"></td>
+                    <td><input type="text" class="supervisor-name"></td>
+                    <td><input type="text" class="signature"></td>
+                </tr>
+                <tr>
+                    <td>2</td>
+                    <td><input type="text" class="student-name"></td>
+                    <td><input type="text" class="student-id"></td>
+                    <td><input type="text" class="supervisor-name"></td>
+                    <td><input type="text" class="signature"></td>
+                </tr>
+                <tr>
+                    <td>3</td>
+                    <td><input type="text" class="student-name"></td>
+                    <td><input type="text" class="student-id"></td>
+                    <td><input type="text" class="supervisor-name"></td>
+                    <td><input type="text" class="signature"></td>
+                </tr>
+                <tr>
+                    <td>4</td>
+                    <td><input type="text" class="student-name"></td>
+                    <td><input type="text" class="student-id"></td>
+                    <td><input type="text" class="supervisor-name"></td>
+                    <td><input type="text" class="signature"></td>
+                </tr>
+                <tr>
+                    <td>5</td>
+                    <td><input type="text" class="student-name"></td>
+                    <td><input type="text" class="student-id"></td>
+                    <td><input type="text" class="supervisor-name"></td>
+                    <td><input type="text" class="signature"></td>
+                </tr>
+                <tr>
+                    <td>6</td>
+                    <td><input type="text" class="student-name"></td>
+                    <td><input type="text" class="student-id"></td>
+                    <td><input type="text" class="supervisor-name"></td>
+                    <td><input type="text" class="signature"></td>
+                </tr>
+                <tr>
+                    <td>7</td>
+                    <td><input type="text" class="student-name"></td>
+                    <td><input type="text" class="student-id"></td>
+                    <td><input type="text" class="supervisor-name"></td>
+                    <td><input type="text" class="signature"></td>
+                </tr>
+                <tr>
+                    <td>8</td>
+                    <td><input type="text" class="student-name"></td>
+                    <td><input type="text" class="student-id"></td>
+                    <td><input type="text" class="supervisor-name"></td>
+                    <td><input type="text" class="signature"></td>
+                </tr>
+                <tr>
+                    <td>9</td>
+                    <td><input type="text" class="student-name"></td>
+                    <td><input type="text" class="student-id"></td>
+                    <td><input type="text" class="supervisor-name"></td>
+                    <td><input type="text" class="signature"></td>
+                </tr>
+                <tr>
+                    <td>10</td>
+                    <td><input type="text" class="student-name"></td>
+                    <td><input type="text" class="student-id"></td>
+                    <td><input type="text" class="supervisor-name"></td>
+                    <td><input type="text" class="signature"></td>
+                </tr>
+                <tr>
+                    <td>11</td>
+                    <td><input type="text" class="student-name"></td>
+                    <td><input type="text" class="student-id"></td>
+                    <td><input type="text" class="supervisor-name"></td>
+                    <td><input type="text" class="signature"></td>
+                </tr>
+                <tr>
+                    <td>12</td>
+                    <td><input type="text" class="student-name"></td>
+                    <td><input type="text" class="student-id"></td>
+                    <td><input type="text" class="supervisor-name"></td>
+                    <td><input type="text" class="signature"></td>
+                </tr>
+                <tr>
+                    <td>13</td>
+                    <td><input type="text" class="student-name"></td>
+                    <td><input type="text" class="student-id"></td>
+                    <td><input type="text" class="supervisor-name"></td>
+                    <td><input type="text" class="signature"></td>
+                </tr>
+                <tr>
+                    <td>14</td>
+                    <td><input type="text" class="student-name"></td>
+                    <td><input type="text" class="student-id"></td>
+                    <td><input type="text" class="supervisor-name"></td>
+                    <td><input type="text" class="signature"></td>
+                </tr>
+                <tr>
+                    <td>15</td>
+                    <td><input type="text" class="student-name"></td>
+                    <td><input type="text" class="student-id"></td>
+                    <td><input type="text" class="supervisor-name"></td>
+                    <td><input type="text" class="signature"></td>
+                </tr>
+                <tr>
+                    <td>16</td>
+                    <td><input type="text" class="student-name"></td>
+                    <td><input type="text" class="student-id"></td>
+                    <td><input type="text" class="supervisor-name"></td>
+                    <td><input type="text" class="signature"></td>
+                </tr>
+                <tr>
+                    <td>17</td>
+                    <td><input type="text" class="student-name"></td>
+                    <td><input type="text" class="student-id"></td>
+                    <td><input type="text" class="supervisor-name"></td>
+                    <td><input type="text" class="signature"></td>
+                </tr>
+                <tr>
+                    <td>18</td>
+                    <td><input type="text" class="student-name"></td>
+                    <td><input type="text" class="student-id"></td>
+                    <td><input type="text" class="supervisor-name"></td>
+                    <td><input type="text" class="signature"></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <hr>
+
+        <div class="approval-section">
+            <strong>For Department Use Only:</strong>
+            <div style="margin-top: 10px;">
+                Request Status: 
+                <div class="checkbox-container">
+                    <span class="checkbox"></span> Approved
+                </div>
+                <div class="checkbox-container">
+                    <span class="checkbox"></span> Not Approved
+                </div>
+            </div>
+            <div style="margin-top: 10px;">
+                <strong>Comments:</strong> <span class="underline"></span>
+            </div>
+            <div class="signature-line">
+                <div><strong>MX Program Coordinator:</strong> <span class="underline" style="min-width: 150px;"></span></div>
+                <div><strong>Date:</strong> <span class="underline" style="min-width: 100px;"></span></div>
+            </div>
+        </div>
+
+        <div class="button-container">
+            <button class="print-button" onclick="window.print()">Print Form</button>
+        </div>
+    </div>
+
+    <script>
+        // Save form data to localStorage whenever changes occur
+        document.addEventListener('DOMContentLoaded', function() {
+            // Load any saved data
+            loadFormData();
+            
+            // Add event listeners to all input fields
+            document.querySelectorAll('input').forEach(input => {
+                input.addEventListener('change', saveFormData);
+                input.addEventListener('keyup', saveFormData);
+            });
+        });
+
+        function saveFormData() {
+            // Collect all the form data
+            const formData = {
+                day: document.getElementById('day').value,
+                month: document.getElementById('month').value,
+                students: []
+            };
+            
+            // Get all rows in the table
+            const rows = document.querySelectorAll('#studentTable tbody tr');
+            rows.forEach((row, index) => {
+                formData.students.push({
+                    name: row.querySelector('.student-name').value,
+                    id: row.querySelector('.student-id').value,
+                    supervisor: row.querySelector('.supervisor-name').value,
+                    signature: row.querySelector('.signature').value
+                });
+            });
+            
+            // Save to localStorage
+            localStorage.setItem('postponementFormData', JSON.stringify(formData));
+        }
+
+        function loadFormData() {
+            // Retrieve saved data
+            const savedData = localStorage.getItem('postponementFormData');
+            if (savedData) {
+                const formData = JSON.parse(savedData);
+                
+                // Populate the form
+                document.getElementById('day').value = formData.day || '';
+                document.getElementById('month').value = formData.month || '';
+                
+                // Populate student table
+                if (formData.students && formData.students.length > 0) {
+                    const rows = document.querySelectorAll('#studentTable tbody tr');
+                    formData.students.forEach((student, index) => {
+                        if (index < rows.length) {
+                            rows[index].querySelector('.student-name').value = student.name || '';
+                            rows[index].querySelector('.student-id').value = student.id || '';
+                            rows[index].querySelector('.supervisor-name').value = student.supervisor || '';
+                            rows[index].querySelector('.signature').value = student.signature || '';
+                        }
+                    });
+                }
+            }
+        }
+    </script>
+</body>
+</html>
