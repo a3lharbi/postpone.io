@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -27,11 +26,14 @@
         .logo {
             width: 80px;
             height: 80px;
-            background-color: #f1f1f1;
             display: flex;
             align-items: center;
             justify-content: center;
             margin-right: 15px;
+        }
+        .logo img {
+            max-width: 100%;
+            max-height: 100%;
         }
         .institution {
             text-align: center;
@@ -118,7 +120,7 @@
             text-align: center;
             margin-top: 20px;
         }
-        .print-button {
+        .button {
             background-color: #007a3d;
             color: white;
             border: none;
@@ -126,9 +128,76 @@
             font-size: 16px;
             cursor: pointer;
             border-radius: 5px;
+            margin: 0 5px;
         }
-        .print-button:hover {
+        .button:hover {
             background-color: #005c2e;
+        }
+        .signature-pad-container {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        .signature-pad-content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 5px;
+            text-align: center;
+            width: 350px;
+        }
+        #signatureCanvas {
+            border: 1px solid #ccc;
+            margin: 10px 0;
+        }
+        .signature-btn-container {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 10px;
+        }
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255,255,255,0.8);
+            z-index: 2000;
+        }
+        .loading-spinner {
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #007a3d;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .sign-button {
+            background-color: #007a3d;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        .signature-img {
+            max-width: 100px;
+            max-height: 40px;
+            display: block;
         }
         @media print {
             body {
@@ -139,7 +208,7 @@
                 box-shadow: none;
                 padding: 0;
             }
-            .button-container {
+            .button-container, .sign-button {
                 display: none;
             }
             input[type="text"] {
@@ -149,10 +218,26 @@
     </style>
 </head>
 <body>
+    <div id="loading" class="loading" style="display: none;">
+        <div class="loading-spinner"></div>
+    </div>
+
+    <div class="signature-pad-container" id="signaturePadContainer">
+        <div class="signature-pad-content">
+            <h3>Draw Signature</h3>
+            <canvas id="signatureCanvas" width="300" height="150"></canvas>
+            <div class="signature-btn-container">
+                <button class="button" id="saveSignature">Save</button>
+                <button class="button" style="background-color: #999;" id="clearSignature">Clear</button>
+                <button class="button" style="background-color: #d32f2f;" id="cancelSignature">Cancel</button>
+            </div>
+        </div>
+    </div>
+
     <div class="container">
         <div class="header">
             <div class="logo">
-                <img src="/Kfipm logo.png" alt="KFUPM Logo">
+                <img src="Kfupm logo.png" alt="KFUPM Logo" onerror="this.src='/api/placeholder/80/80'">
             </div>
             <div class="institution">
                 <div style="font-size: 1.2em; font-weight: bold;">King Fahd University of Petroleum & Minerals</div>
@@ -203,132 +288,7 @@
                 </tr>
             </thead>
             <tbody>
-                <tr>
-                    <td>1</td>
-                    <td><input type="text" class="student-name"></td>
-                    <td><input type="text" class="student-id"></td>
-                    <td><input type="text" class="supervisor-name"></td>
-                    <td><input type="text" class="signature"></td>
-                </tr>
-                <tr>
-                    <td>2</td>
-                    <td><input type="text" class="student-name"></td>
-                    <td><input type="text" class="student-id"></td>
-                    <td><input type="text" class="supervisor-name"></td>
-                    <td><input type="text" class="signature"></td>
-                </tr>
-                <tr>
-                    <td>3</td>
-                    <td><input type="text" class="student-name"></td>
-                    <td><input type="text" class="student-id"></td>
-                    <td><input type="text" class="supervisor-name"></td>
-                    <td><input type="text" class="signature"></td>
-                </tr>
-                <tr>
-                    <td>4</td>
-                    <td><input type="text" class="student-name"></td>
-                    <td><input type="text" class="student-id"></td>
-                    <td><input type="text" class="supervisor-name"></td>
-                    <td><input type="text" class="signature"></td>
-                </tr>
-                <tr>
-                    <td>5</td>
-                    <td><input type="text" class="student-name"></td>
-                    <td><input type="text" class="student-id"></td>
-                    <td><input type="text" class="supervisor-name"></td>
-                    <td><input type="text" class="signature"></td>
-                </tr>
-                <tr>
-                    <td>6</td>
-                    <td><input type="text" class="student-name"></td>
-                    <td><input type="text" class="student-id"></td>
-                    <td><input type="text" class="supervisor-name"></td>
-                    <td><input type="text" class="signature"></td>
-                </tr>
-                <tr>
-                    <td>7</td>
-                    <td><input type="text" class="student-name"></td>
-                    <td><input type="text" class="student-id"></td>
-                    <td><input type="text" class="supervisor-name"></td>
-                    <td><input type="text" class="signature"></td>
-                </tr>
-                <tr>
-                    <td>8</td>
-                    <td><input type="text" class="student-name"></td>
-                    <td><input type="text" class="student-id"></td>
-                    <td><input type="text" class="supervisor-name"></td>
-                    <td><input type="text" class="signature"></td>
-                </tr>
-                <tr>
-                    <td>9</td>
-                    <td><input type="text" class="student-name"></td>
-                    <td><input type="text" class="student-id"></td>
-                    <td><input type="text" class="supervisor-name"></td>
-                    <td><input type="text" class="signature"></td>
-                </tr>
-                <tr>
-                    <td>10</td>
-                    <td><input type="text" class="student-name"></td>
-                    <td><input type="text" class="student-id"></td>
-                    <td><input type="text" class="supervisor-name"></td>
-                    <td><input type="text" class="signature"></td>
-                </tr>
-                <tr>
-                    <td>11</td>
-                    <td><input type="text" class="student-name"></td>
-                    <td><input type="text" class="student-id"></td>
-                    <td><input type="text" class="supervisor-name"></td>
-                    <td><input type="text" class="signature"></td>
-                </tr>
-                <tr>
-                    <td>12</td>
-                    <td><input type="text" class="student-name"></td>
-                    <td><input type="text" class="student-id"></td>
-                    <td><input type="text" class="supervisor-name"></td>
-                    <td><input type="text" class="signature"></td>
-                </tr>
-                <tr>
-                    <td>13</td>
-                    <td><input type="text" class="student-name"></td>
-                    <td><input type="text" class="student-id"></td>
-                    <td><input type="text" class="supervisor-name"></td>
-                    <td><input type="text" class="signature"></td>
-                </tr>
-                <tr>
-                    <td>14</td>
-                    <td><input type="text" class="student-name"></td>
-                    <td><input type="text" class="student-id"></td>
-                    <td><input type="text" class="supervisor-name"></td>
-                    <td><input type="text" class="signature"></td>
-                </tr>
-                <tr>
-                    <td>15</td>
-                    <td><input type="text" class="student-name"></td>
-                    <td><input type="text" class="student-id"></td>
-                    <td><input type="text" class="supervisor-name"></td>
-                    <td><input type="text" class="signature"></td>
-                </tr>
-                <tr>
-                    <td>16</td>
-                    <td><input type="text" class="student-name"></td>
-                    <td><input type="text" class="student-id"></td>
-                    <td><input type="text" class="supervisor-name"></td>
-                    <td><input type="text" class="signature"></td>
-                </tr>
-                <tr>
-                    <td>17</td>
-                    <td><input type="text" class="student-name"></td>
-                    <td><input type="text" class="student-id"></td>
-                    <td><input type="text" class="supervisor-name"></td>
-                    <td><input type="text" class="signature"></td>
-                </tr>
-                <tr>
-                    <td>18</td>
-                    <td><input type="text" class="student-name"></td>
-                    <td><input type="text" class="student-id"></td>
-                    <td><input type="text" class="supervisor-name"></td>
-                    <td><input type="text" class="signature"></td>
-                </tr>
+                <!-- Table rows will be generated dynamically -->
             </tbody>
         </table>
 
@@ -355,69 +315,308 @@
         </div>
 
         <div class="button-container">
-            <button class="print-button" onclick="window.print()">Print Form</button>
+            <button class="button" id="saveButton">Save Form Data</button>
+            <button class="button" onclick="window.print()">Print Form</button>
         </div>
     </div>
 
     <script>
-        // Save form data to localStorage whenever changes occur
+        // GitHub Gist ID - Replace with your actual Gist ID after creating it
+        const GIST_ID = '5cf2de231fd8f9c0ea11894ca92a2fa7';
+        // GitHub Personal Access Token - Should be stored securely in production
+        const GITHUB_TOKEN = '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';
+        
+        let currentSignatureRow = null;
+        let formData = {
+            day: '',
+            month: '',
+            students: Array(18).fill().map(() => ({
+                name: '',
+                id: '',
+                supervisor: '',
+                signature: ''
+            }))
+        };
+
         document.addEventListener('DOMContentLoaded', function() {
-            // Load any saved data
+            // Initialize the table
+            initializeTable();
+            
+            // Load data from GitHub
             loadFormData();
             
-            // Add event listeners to all input fields
+            // Set up event listeners
+            document.getElementById('saveButton').addEventListener('click', saveToGitHub);
+            document.getElementById('clearSignature').addEventListener('click', clearSignature);
+            document.getElementById('saveSignature').addEventListener('click', saveSignature);
+            document.getElementById('cancelSignature').addEventListener('click', cancelSignature);
+            
+            // Add event listeners to all input fields for local updates
             document.querySelectorAll('input').forEach(input => {
-                input.addEventListener('change', saveFormData);
-                input.addEventListener('keyup', saveFormData);
+                input.addEventListener('change', updateLocalData);
+                input.addEventListener('keyup', updateLocalData);
             });
         });
 
-        function saveFormData() {
-            // Collect all the form data
-            const formData = {
-                day: document.getElementById('day').value,
-                month: document.getElementById('month').value,
-                students: []
-            };
+        function initializeTable() {
+            const tbody = document.querySelector('#studentTable tbody');
+            tbody.innerHTML = '';
             
-            // Get all rows in the table
-            const rows = document.querySelectorAll('#studentTable tbody tr');
-            rows.forEach((row, index) => {
-                formData.students.push({
-                    name: row.querySelector('.student-name').value,
-                    id: row.querySelector('.student-id').value,
-                    supervisor: row.querySelector('.supervisor-name').value,
-                    signature: row.querySelector('.signature').value
-                });
+            for (let i = 0; i < 18; i++) {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${i + 1}</td>
+                    <td><input type="text" class="student-name" data-index="${i}"></td>
+                    <td><input type="text" class="student-id" data-index="${i}"></td>
+                    <td><input type="text" class="supervisor-name" data-index="${i}"></td>
+                    <td>
+                        <button class="sign-button" data-index="${i}">Sign</button>
+                        <div class="signature-container" data-index="${i}"></div>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            }
+            
+            // Add event listeners to all sign buttons
+            document.querySelectorAll('.sign-button').forEach(button => {
+                button.addEventListener('click', openSignaturePad);
             });
-            
-            // Save to localStorage
-            localStorage.setItem('postponementFormData', JSON.stringify(formData));
         }
 
-        function loadFormData() {
-            // Retrieve saved data
-            const savedData = localStorage.getItem('postponementFormData');
-            if (savedData) {
-                const formData = JSON.parse(savedData);
+        function updateLocalData() {
+            // Update day and month
+            formData.day = document.getElementById('day').value;
+            formData.month = document.getElementById('month').value;
+            
+            // Update student information
+            document.querySelectorAll('.student-name').forEach(input => {
+                const index = parseInt(input.dataset.index);
+                formData.students[index].name = input.value;
+            });
+            
+            document.querySelectorAll('.student-id').forEach(input => {
+                const index = parseInt(input.dataset.index);
+                formData.students[index].id = input.value;
+            });
+            
+            document.querySelectorAll('.supervisor-name').forEach(input => {
+                const index = parseInt(input.dataset.index);
+                formData.students[index].supervisor = input.value;
+            });
+        }
+
+        async function loadFormData() {
+            try {
+                showLoading();
+                const response = await fetch(`https://api.github.com/gists/${GIST_ID}`);
                 
-                // Populate the form
-                document.getElementById('day').value = formData.day || '';
-                document.getElementById('month').value = formData.month || '';
-                
-                // Populate student table
-                if (formData.students && formData.students.length > 0) {
-                    const rows = document.querySelectorAll('#studentTable tbody tr');
-                    formData.students.forEach((student, index) => {
-                        if (index < rows.length) {
-                            rows[index].querySelector('.student-name').value = student.name || '';
-                            rows[index].querySelector('.student-id').value = student.id || '';
-                            rows[index].querySelector('.supervisor-name').value = student.supervisor || '';
-                            rows[index].querySelector('.signature').value = student.signature || '';
-                        }
-                    });
+                if (response.ok) {
+                    const data = await response.json();
+                    const content = data.files['form-data.json'].content;
+                    formData = JSON.parse(content);
+                    
+                    // Populate the form with loaded data
+                    populateForm();
+                } else {
+                    console.log("No existing data found or unable to load. Starting fresh.");
                 }
+            } catch (error) {
+                console.error('Error loading data:', error);
+            } finally {
+                hideLoading();
             }
+        }
+
+        async function saveToGitHub() {
+            // Update local data one last time before saving
+            updateLocalData();
+            
+            try {
+                showLoading();
+                
+                const requestBody = {
+                    files: {
+                        'form-data.json': {
+                            content: JSON.stringify(formData, null, 2)
+                        }
+                    }
+                };
+                
+                const method = 'PATCH'; // Use PATCH to update existing gist
+                
+                const response = await fetch(`https://api.github.com/gists/${GIST_ID}`, {
+                    method: method,
+                    headers: {
+                        'Authorization': `token ${GITHUB_TOKEN}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(requestBody)
+                });
+                
+                if (response.ok) {
+                    alert('Form data saved successfully!');
+                } else {
+                    const errorData = await response.json();
+                    alert(`Error saving data: ${errorData.message}`);
+                }
+            } catch (error) {
+                console.error('Error saving data:', error);
+                alert('Error saving data. Please try again.');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        function populateForm() {
+            // Set date values
+            document.getElementById('day').value = formData.day || '';
+            document.getElementById('month').value = formData.month || '';
+            
+            // Populate student data
+            formData.students.forEach((student, index) => {
+                const nameInput = document.querySelector(`.student-name[data-index="${index}"]`);
+                const idInput = document.querySelector(`.student-id[data-index="${index}"]`);
+                const supervisorInput = document.querySelector(`.supervisor-name[data-index="${index}"]`);
+                const signatureContainer = document.querySelector(`.signature-container[data-index="${index}"]`);
+                
+                if (nameInput) nameInput.value = student.name || '';
+                if (idInput) idInput.value = student.id || '';
+                if (supervisorInput) supervisorInput.value = student.supervisor || '';
+                
+                // Display signature if exists
+                if (signatureContainer && student.signature) {
+                    const img = document.createElement('img');
+                    img.src = student.signature;
+                    img.className = 'signature-img';
+                    signatureContainer.innerHTML = '';
+                    signatureContainer.appendChild(img);
+                }
+            });
+        }
+
+        // Signature pad functionality
+        let canvas, ctx;
+        
+        function openSignaturePad(event) {
+            const index = event.target.dataset.index;
+            currentSignatureRow = parseInt(index);
+            
+            const container = document.getElementById('signaturePadContainer');
+            container.style.display = 'flex';
+            
+            canvas = document.getElementById('signatureCanvas');
+            ctx = canvas.getContext('2d');
+            
+            // Clear the canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = 'white';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Set drawing styles
+            ctx.strokeStyle = 'black';
+            ctx.lineWidth = 2;
+            
+            // Initialize drawing variables
+            let isDrawing = false;
+            let lastX = 0;
+            let lastY = 0;
+            
+            // Event listeners for drawing
+            canvas.addEventListener('mousedown', startDrawing);
+            canvas.addEventListener('mousemove', draw);
+            canvas.addEventListener('mouseup', stopDrawing);
+            canvas.addEventListener('mouseout', stopDrawing);
+            
+            // Touch support
+            canvas.addEventListener('touchstart', handleTouch);
+            canvas.addEventListener('touchmove', handleTouchMove);
+            canvas.addEventListener('touchend', stopDrawing);
+            
+            function startDrawing(e) {
+                isDrawing = true;
+                [lastX, lastY] = [e.offsetX, e.offsetY];
+            }
+            
+            function draw(e) {
+                if (!isDrawing) return;
+                ctx.beginPath();
+                ctx.moveTo(lastX, lastY);
+                ctx.lineTo(e.offsetX, e.offsetY);
+                ctx.stroke();
+                [lastX, lastY] = [e.offsetX, e.offsetY];
+            }
+            
+            function stopDrawing() {
+                isDrawing = false;
+            }
+            
+            function handleTouch(e) {
+                e.preventDefault();
+                const touch = e.touches[0];
+                const mouseEvent = new MouseEvent('mousedown', {
+                    clientX: touch.clientX,
+                    clientY: touch.clientY
+                });
+                canvas.dispatchEvent(mouseEvent);
+            }
+            
+            function handleTouchMove(e) {
+                e.preventDefault();
+                const touch = e.touches[0];
+                const rect = canvas.getBoundingClientRect();
+                const mouseEvent = new MouseEvent('mousemove', {
+                    clientX: touch.clientX,
+                    clientY: touch.clientY,
+                    offsetX: touch.clientX - rect.left,
+                    offsetY: touch.clientY - rect.top
+                });
+                canvas.dispatchEvent(mouseEvent);
+            }
+        }
+        
+        function clearSignature() {
+            if (ctx) {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.fillStyle = 'white';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+            }
+        }
+        
+        function saveSignature() {
+            if (currentSignatureRow !== null && canvas) {
+                // Convert canvas to image
+                const signatureData = canvas.toDataURL('image/png');
+                
+                // Save to form data
+                formData.students[currentSignatureRow].signature = signatureData;
+                
+                // Display the signature
+                const container = document.querySelector(`.signature-container[data-index="${currentSignatureRow}"]`);
+                if (container) {
+                    const img = document.createElement('img');
+                    img.src = signatureData;
+                    img.className = 'signature-img';
+                    container.innerHTML = '';
+                    container.appendChild(img);
+                }
+                
+                // Close the signature pad
+                document.getElementById('signaturePadContainer').style.display = 'none';
+                currentSignatureRow = null;
+            }
+        }
+        
+        function cancelSignature() {
+            document.getElementById('signaturePadContainer').style.display = 'none';
+            currentSignatureRow = null;
+        }
+
+        function showLoading() {
+            document.getElementById('loading').style.display = 'flex';
+        }
+        
+        function hideLoading() {
+            document.getElementById('loading').style.display = 'none';
         }
     </script>
 </body>
